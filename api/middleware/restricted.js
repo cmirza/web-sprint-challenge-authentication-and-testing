@@ -12,6 +12,8 @@ module.exports = (req, res, next) => {
         req.decodedJwt = decoded;
         next();
       }
-    })
+    });
+  } else {
+    res.status(401).json('token required');
   }
 };
