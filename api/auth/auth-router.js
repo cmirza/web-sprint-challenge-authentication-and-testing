@@ -14,7 +14,18 @@ function validUser(req, res, next) {
   }
 }
 
-router.post('/register', validUser, (req, res) => {
+async function uniqueUser(req, res, next) {
+  const { username } = req.body;
+  const userExists = await Users.getBy({ username });
+
+  if (userExists.length) {
+    res.status(409).json({ message: 'username taken'})
+  } else {
+    next();
+  }
+}
+
+router.post('/register', validUser, uniqueUser, (req, res) => {
   const credentials = req.body;
   const hash = bcrypt.hashSync(credentials.password, 12);
   credentials.password = hash;
@@ -52,6 +63,6 @@ function generateToken(user) {
     expiresIn: "1d"
   };
   return jwt.sign(payload, jwtSecret, options)
-};
+}
 
 module.exports = router;
